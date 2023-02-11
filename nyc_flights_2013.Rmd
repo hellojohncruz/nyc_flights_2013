@@ -1,0 +1,22 @@
+---
+title: "NYC Flights 2013"
+author: "John Cruz"
+date: "2023-02-11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Required Libraries
+``` {r library, message=FALSE}
+library(nycflights13)
+library(tidyverse)
+```
+
+
+
+```{r cars}
+summary(cars)
+```
