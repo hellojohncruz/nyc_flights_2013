@@ -128,6 +128,17 @@ daily_flights <- daily |>
   )
 ```
 
+### *ungroup()*
+
+``` {r ungroup}
+daily |> 
+  ungroup() |>
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE), 
+    flights = n()
+  )
+```
+
 ### *slice_* functions
 Instead of *n =*, you can use *prop = 0.1* to select 10% of the rows in each group.
 
@@ -143,8 +154,28 @@ flights |>
   slice_max(arr_delay, prop = 0.05)
 ```
 
+``` {r flight counts-delays}
+delays <- flights |>  
+  filter(!is.na(arr_delay), !is.na(tailnum)) |> 
+  group_by(tailnum) |> 
+  summarize(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
 
+ggplot(delays, aes(x = delay)) + 
+  geom_freqpoly(binwidth = 10)
+```
 
+``` {r flights-avg_delay}
+ggplot(delays, aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10)
+```
 
-
-
+```{r adjust variation}
+delays |>  
+  filter(n > 25) |> 
+  ggplot(aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10) + 
+  geom_smooth(se = FALSE)
+```
