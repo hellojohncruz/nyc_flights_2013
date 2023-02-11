@@ -114,6 +114,20 @@ flights |>
   )
 ```
 
+### *summarize* based on tibble and multiple *group_by()*
+When you are modifying a tibble that was created by multiple conditions in the previous group_by, you have to use .groups
+
+``` {r summarize}
+daily <- flights |>  
+  group_by(year, month, day)
+
+daily_flights <- daily |> 
+  summarize(
+    n = n(),
+    .groups = "drop_last"
+  )
+```
+
 ### *slice_* functions
 Instead of *n =*, you can use *prop = 0.1* to select 10% of the rows in each group.
 
@@ -129,19 +143,7 @@ flights |>
   slice_max(arr_delay, prop = 0.05)
 ```
 
-### *summarize* based on tibble and multiple *group_by()*
-When you are modifying a tibble that was created by multiple conditions in the previous group_by, you have to use .groups
 
-``` {r summarize}
-daily <- flights |>  
-  group_by(year, month, day)
-
-daily_flights <- daily |> 
-  summarize(
-    n = n(),
-    .groups = "drop_last"
-  )
-```
 
 
 
