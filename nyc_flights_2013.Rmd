@@ -9,14 +9,140 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Required Libraries
+# Required Libraries
 ``` {r library, message=FALSE}
 library(nycflights13)
 library(tidyverse)
 ```
 
+---
 
+# Using dplyr
 
-```{r cars}
-summary(cars)
+## Row Operations
+
+### *filter()*
+
+```{r filter}
+
+# Flights that departed on January 1
+flights |> 
+  filter(month == 1 & day == 1)
+
+# Flights that departed in January or February
+flights |> 
+  filter(month %in% c(1, 2))
 ```
+
+### *arrange()*
+``` {r arrange}
+flights |> 
+  arrange(desc(dep_delay))
+```
+
+### *distinct()*
+``` {r distinct}
+flights |> 
+  distinct(origin, dest)
+```
+
+---
+
+## Column Operations
+
+### *mutate()*
+- *.before* or *.after* "Determine new columns placement in data frame."
+- *.keep* "Control which variables are kept. ('used' argument keeps the inputs from your calculations)"
+
+``` {r mutate}
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    hours = air_time / 60,
+    gain_per_hour = gain / hours,
+    .keep = "used"
+  )
+```
+
+### *select()*
+- starts_with("abc"): matches names that begin with “abc”.
+- ends_with("xyz"): matches names that end with “xyz”.
+- contains("ijk"): matches names that contain “ijk”.
+- num_range("x", 1:3): matches x1, x2 and x3.
+
+``` {r select}
+# Select columns by name
+flights |> 
+  select(year, month, day)
+
+# Select all columns between year and day (inclusive)
+flights |> 
+  select(year:day)
+
+# Select all columns except those from year to day (inclusive)
+flights |> 
+  select(!year:day)
+
+# Select all columns that are characters
+flights |> 
+  select(where(is.character))
+```
+
+### *rename()*
+- alternative for many columns use *janitor::clean_names()*
+
+``` {r rename}
+flights |> 
+  rename(tail_num = tailnum)
+```
+
+### *relocate()*
+
+``` {r relocate}
+flights |> 
+  relocate(year:dep_time, .after = time_hour)
+```
+
+### *group_by()* & *summarize()*
+
+``` {r groupby-summarize}
+flights |> 
+  group_by(month) |> 
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    count = n()
+  )
+```
+
+### *slice_* functions
+Instead of *n =*, you can use *prop = 0.1* to select 10% of the rows in each group.
+
+- df |> slice_head(n = 1) takes the first row from each group.
+- df |> slice_tail(n = 1) takes the last row in each group.
+- df |> slice_min(x, n = 1) takes the row with the smallest value of x.
+- df |> slice_max(x, n = 1) takes the row with the largest value of x.
+- df |> slice_sample(n = 1) takes one random row.
+
+``` {r slice-func}
+flights |> 
+  group_by(dest) |> 
+  slice_max(arr_delay, prop = 0.05)
+```
+
+### *summarize* based on tibble and multiple *group_by()*
+When you are modifying a tibble that was created by multiple conditions in the previous group_by, you have to use .groups
+
+``` {r summarize}
+daily <- flights |>  
+  group_by(year, month, day)
+
+daily_flights <- daily |> 
+  summarize(
+    n = n(),
+    .groups = "drop_last"
+  )
+```
+
+
+
+
